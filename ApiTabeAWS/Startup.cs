@@ -33,20 +33,26 @@ public class Startup
         services.AddControllers();
         services.AddSingleton<KeysModel>(x => model);
         services.AddTransient<RepositoryRestaurantes>();
+        HelperActionServicesOAuth helper = new HelperActionServicesOAuth(model);
+        services.AddSingleton<HelperActionServicesOAuth>(helper);
+        services.AddAuthentication(helper.GetAuthenticateSchema())
+        .AddJwtBearer(helper.GetJwtBearerOptions());
         services.AddDbContext<RestaurantesContext>(options =>
         {
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         });
         string googleApiKey = model.GoogleApiKey;
+        services.AddHttpClient();
+        services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient
             (h => new HelperGoogleApiDirections(googleApiKey, h.GetRequiredService<IHttpClientFactory>()));
-
         services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
         services.AddEndpointsApiExplorer();
         services.AddCors(options =>
         {
             options.AddPolicy("AllowOrigin", x => x.AllowAnyOrigin());
         });
+        
         services.AddOpenApiDocument(document =>
         {
             document.Title = "Tabe API";
@@ -81,19 +87,16 @@ public class Startup
             app.UseDeveloperExceptionPage();
         }
 
-        app.UseCors(options => options.AllowAnyOrigin());
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+        app.UseRouting();
+        app.UseCors(options => options.AllowAnyOrigin());
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
-            endpoints.MapGet("/", async context =>
-            {
-                await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
-            });
         });
     }
 }

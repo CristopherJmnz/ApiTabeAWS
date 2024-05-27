@@ -11,4 +11,5 @@
   "s3-prefix": "ApiTabeAWS/",
   "template": "serverless.template",
   "template-parameters": "",
+  "function-role": "role-execution-core-lambda"
 }
