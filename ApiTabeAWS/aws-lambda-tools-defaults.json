@@ -5,10 +5,10 @@
     "dotnet lambda help",
     "All the command line options for the Lambda command can be specified in this file."
   ],
-  "profile": "user-visual-studio",
+  "profile": "admin-tabe",
   "region": "us-east-1",
   "configuration": "Release",
   "s3-prefix": "ApiTabeAWS/",
   "template": "serverless.template",
-  "template-parameters": ""
+  "template-parameters": "",
 }
