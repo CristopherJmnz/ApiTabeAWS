@@ -2,9 +2,9 @@ using ApiTabeAWS.Data;
 using ApiTabeAWS.Helpers;
 using ApiTabeAWS.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using NSwag;
-using NSwag.Generation.Processors.Security;
 using TabeNuget;
 
 namespace ApiTabeAWS;
@@ -52,35 +52,29 @@ public class Startup
         {
             options.AddPolicy("AllowOrigin", x => x.AllowAnyOrigin());
         });
-        
-        services.AddOpenApiDocument(document =>
+
+        services.AddSwaggerGen(options =>
         {
-            document.Title = "Tabe API";
-            document.Description = "API de la app de Tabe";
-            document.AddSecurity("JWT", Enumerable.Empty<string>(),
-                new NSwag.OpenApiSecurityScheme
-                {
-                    Type = OpenApiSecuritySchemeType.ApiKey,
-                    Name = "Authorization",
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "Copia y pega el Token en el campo 'Value:' así: Bearer {Token JWT}."
-                }
-            );
-            document.OperationProcessors.Add(
-            new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Api Tabe AWS",
+                Version = "v1"
+            });
         });
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseOpenApi();
+        app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.InjectStylesheet("/css/theme-material.css");
-            options.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "Tabe API");
+            options.SwaggerEndpoint(url: "swagger/v1/swagger.json",
+                "Api Tabe AWS");
             options.RoutePrefix = "";
         });
+
 
         if (env.IsDevelopment())
         {
